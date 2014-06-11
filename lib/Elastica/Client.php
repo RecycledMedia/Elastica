@@ -605,7 +605,40 @@ class Client
                 throw $e;
             }
             return $this->request($path, $method, $data, $query);
-        }
+        } catch ( PartialShardFailureException $e ) {
+			$connection->setEnabled ( false );
+			
+			/* Yo Dawg you just got a split brain */
+			$redis = \Tradesy\TRedis::connect ()->db;
+			$redisDontTryThisHostAgainSet = \Tradesy\Constants::ES_SPLITBRAIN_BADNODES_SET;
+			
+			$currentConnectionHost = $connection->getParam ( "host" );
+			
+			$connectionsNotToTry = $redis->sMembers ( $redisDontTryThisHostAgainSet );
+			
+			if (in_array ( $currentConnectionHost, $connectionsNotToTry ) === false) {
+				$redis->sAdd ( $redisDontTryThisHostAgainSet, $currentConnectionHost );
+				$redis->expire ( $redisDontTryThisHostAgainSet, 60 );
+				$connectionsNotToTry[] = $currentConnectionHost;
+			}
+			
+			foreach ( $this->_connections as $indexOf => $connectionObj ) {
+				if (in_array ( $connectionObj->getParam ( "host" ), $connectionsNotToTry )) {
+					unset ( $this->_connections[$indexOf] );
+				}
+			}
+			
+			// Calls callback with connection as param to make it possible to persist invalid connections
+			if ($this->_callback) {
+				call_user_func ( $this->_callback, $connection, $e, $this );
+			}
+			
+			// In case there is no valid connection left, throw exception which caused the disabling of the connection.
+			if (! $this->hasConnection ()) {
+				throw $e;
+			}
+			return $this->request ( $path, $method, $data, $query );
+		}
     }
 
     /**
