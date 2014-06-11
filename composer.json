@@ -1,5 +1,5 @@
 {
-    "name": "ruflin/elastica",
+    "name": "tradesy/elastica",
     "description": "Elasticsearch Client",
     "keywords": ["search","client"],
     "homepage": "http://elastica.io/",
@@ -12,7 +12,8 @@
         }
     ],
     "require": {
-        "php": ">=5.3.3"
+        "php": ">=5.3.3",
+        "tradesy/common" : "dev-master"
     },
     "require-dev": {
         "psr/log": "~1.0",
