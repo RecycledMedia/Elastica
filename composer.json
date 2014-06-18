@@ -13,7 +13,7 @@
     ],
     "require": {
         "php": ">=5.3.3",
-        "tradesy/common" : "dev-master"
+        "tradesy/common" : "*"
     },
     "require-dev": {
         "psr/log": "~1.0",
