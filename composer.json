@@ -11,6 +11,12 @@
             "homepage": "http://ruflin.com/"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/RecycledMedia/tradesy-common"
+        }
+    ],
     "require": {
         "php": ">=5.3.3",
         "tradesy/common" : "0.9.*"
